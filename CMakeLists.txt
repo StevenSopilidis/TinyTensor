@@ -18,6 +18,9 @@ enable_testing()
 
 add_executable(
     TinyTensor
+    # ./main.cpp
+    ./TinyTensor/src/Tensor.cpp
+    ./TinyTensor/tests/tensor_test.cpp
 )
 
 find_program(CLANG_FORMAT clang-format)
@@ -39,6 +42,9 @@ if(CLANG_TIDY)
     )
 
     set(SOURCE_DIRS
+        ./TintTensor/include
+        ./TintTensor/src
+        ./TintTensor/tests
     )
 
     file(GLOB_RECURSE MY_SOURCE_FILES
@@ -53,6 +59,7 @@ if(CLANG_TIDY)
     )
 endif()
 
+target_include_directories(TinyTensor PUBLIC ./TinyTensor/include)
 
 target_link_libraries(
   TinyTensor PUBLIC
@@ -60,4 +67,4 @@ target_link_libraries(
 )
 
 include(GoogleTest)
-# gtest_discover_tests(TinyTensor)
+gtest_discover_tests(TinyTensor)
