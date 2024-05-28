@@ -23,7 +23,10 @@ const float Tensor::get_item(std::vector<int> indices) {
         index += indices.at(i) * strides.at(i);
     }
     
-    std::cout << index << std::endl;
+    return data[index];
+}
+
+const float Tensor::get_item(int index) {
     return data[index];
 }
 

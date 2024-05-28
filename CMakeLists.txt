@@ -20,7 +20,9 @@ add_executable(
     TinyTensor
     # ./main.cpp
     ./TinyTensor/src/Tensor.cpp
+    ./TinyTensor/src/Cpu.cpp
     ./TinyTensor/tests/tensor_test.cpp
+    ./TinyTensor/tests/cpu_test.cpp
 )
 
 find_program(CLANG_FORMAT clang-format)
