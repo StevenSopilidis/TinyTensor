@@ -107,3 +107,44 @@ TEST(CPU, EqualTensorsCPU) {
         EXPECT_EQ(expected_outputs[i], out[i]);
     }
 }
+
+TEST(CPU, ZeroTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    zero_tensor_cpu(tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(tensor->get_item(i), 0.f);
+    }
+}
+
+TEST(CPU, OneTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    one_tensor_cpu(tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(tensor->get_item(i), 1.f);
+    }
+}
+
+TEST(CPU, AssignTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+    auto values = std::shared_ptr<float[]>(new float[4]{1, 2, 3, 4}, std::default_delete<float[]>());
+
+
+    assign_tensor_cpu(tensor, values);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(tensor->get_item(i), values[i]);
+    }
+}

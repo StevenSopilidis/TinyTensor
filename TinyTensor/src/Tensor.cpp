@@ -26,6 +26,10 @@ const float Tensor::get_item(std::vector<int> indices) {
     return data[index];
 }
 
+void Tensor::set_item(int index, float value) {
+    data[index] = value;
+}
+
 const float Tensor::get_item(int index) {
     return data[index];
 }

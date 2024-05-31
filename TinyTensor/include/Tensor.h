@@ -17,6 +17,7 @@ public:
     Tensor(std::vector<float>& data, std::vector<int>& shape, int ndim, std::string device);
     const float get_item(std::vector<int> indices);
     const float get_item(int index); 
+    void set_item(int index, float value);
     const std::vector<int> get_strides() const;
     const std::vector<int> get_shape() const;
     int get_ndim() const;
