@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <math.h>
 #include "Tensor.h"
 #include "Cpu.h"
 
@@ -114,10 +115,10 @@ TEST(CPU, ZeroTensorCPU) {
     std::vector<int> shape = {2, 2};
     auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
 
-    zero_tensor_cpu(tensor);
+    auto result = zero_tensor_cpu(tensor);
     for (int i = 0; i < tensor->get_size(); i++)
     {
-        EXPECT_EQ(tensor->get_item(i), 0.f);
+        EXPECT_EQ(result[i], 0.f);
     }
 }
 
@@ -127,10 +128,108 @@ TEST(CPU, OneTensorCPU) {
     std::vector<int> shape = {2, 2};
     auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
 
-    one_tensor_cpu(tensor);
+    auto result = one_tensor_cpu(tensor);
     for (int i = 0; i < tensor->get_size(); i++)
     {
-        EXPECT_EQ(tensor->get_item(i), 1.f);
+        EXPECT_EQ(result[i], 1.f);
+    }
+}
+
+TEST(CPU, SinTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    auto result = sin_tensor_cpu(tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(result[i], sinf(tensor->get_item(i)));
+    }
+}
+
+TEST(CPU, LogTensorCpu) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    auto result = log_tensor_cpu(tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(result[i], logf(tensor->get_item(i)));
+    }
+}
+
+TEST(CPU, ExpTensorCpu) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    auto result = exp_tensor_cpu(tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(result[i], expf(tensor->get_item(i)));
+    }
+}
+
+TEST(CPU, SigmoidTensorCpu) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    auto result = sigmoid_tensor_cpu(tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        auto data = tensor->get_item(i);
+
+        if (data >= 0) {
+            EXPECT_EQ(result[i], 1/ (1 + expf(-data)));
+        } else {
+            EXPECT_EQ(result[i], 1/ (1 + expf(data)));
+        }
+    }
+}
+
+TEST(CPU, ScalarPowTensor) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    auto result = scalar_pow_tensor_cpu(2.0f, tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(result[i], pow(2.0f, tensor->get_item(i)));
+    }
+}
+
+TEST(CPU, TensorPowScalar) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    auto result = tensor_pow_scalar(tensor, 2.0f);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(result[i], pow(tensor->get_item(i), 2.0f));
+    }
+}
+
+
+TEST(CPU, CosTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+
+    auto result = cos_tensor_cpu(tensor);
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(result[i], cosf(tensor->get_item(i)));
     }
 }
 
