@@ -19,4 +19,6 @@ std::shared_ptr<float[]> exp_tensor_cpu(std::shared_ptr<Tensor> t1);
 std::shared_ptr<float[]> sigmoid_tensor_cpu(std::shared_ptr<Tensor> t1);
 std::shared_ptr<float[]> scalar_pow_tensor_cpu(float base, std::shared_ptr<Tensor> t1);
 std::shared_ptr<float[]> tensor_pow_scalar(std::shared_ptr<Tensor> t1, float exp);
+std::shared_ptr<float[]> max_tensor_cpu(std::shared_ptr<Tensor> t1, int size, std::vector<int>& result_shape, int axis);
+std::shared_ptr<float[]> min_tensor_cpu(std::shared_ptr<Tensor> t1, int size, std::vector<int>& result_shape, int axis);
 void assign_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<float[]> data);

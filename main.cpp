@@ -1,18 +1,22 @@
 #include <iostream>
 #include "Tensor.h"
 #include "Cpu.h"
+#include <vector>
 
 int main() {
-    // std::string device = "cpu";
-    // std::vector<float> data = {2, 4, 6, 8};
-    // std::vector<int> shape = {2};
-    // auto tensor1 = std::make_shared<Tensor>(data, shape, 2, device);
-    // float scalar = 2;
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12, 
+                                234, 234, 5, 1};
+    std::vector<int> shape = {2, 4};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
 
-    // float expected_outputs[] = {2/2, 2/4, 2/3, 2/8};
-    // auto out = scalar_div_tensor_cpu(scalar, tensor1);
-    // for (int i = 0; i < tensor1->get_size(); i++)
-    // {
-    //     std::cout << out[i] << " " << expected_outputs[i] << std::endl;
-    // }
+    std::vector<int> result_shape = {4};
+
+    auto maxes = max_tensor_cpu(tensor, 4, result_shape, 0);
+
+    std::cout << "Max values along axis 0: ";
+    for (int i = 0; i < 4; i++) {
+        std::cout << maxes[i] << " ";
+    }
+    std::cout << std::endl;
 }

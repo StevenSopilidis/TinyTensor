@@ -178,3 +178,79 @@ void assign_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<float[]> data
         t1->set_item(i, data[i]);
     }
 }
+
+std::shared_ptr<float[]> max_tensor_cpu(std::shared_ptr<Tensor> t1, int size, std::vector<int>& result_shape, int axis) {
+    if (axis == -1) {
+        auto maxes = std::shared_ptr<float[]>(new float[1]);
+        auto max = -INFINITY;
+
+        for (int i = 0; i < t1->get_size(); i++) {
+            max = fmax(max, t1->get_item(i));
+        }
+
+        maxes[0] = max;
+        return maxes;
+    } else {
+        if (axis < 0 || axis >= t1->get_ndim()) {
+            throw new std::runtime_error("Invalid axis provided");
+        }
+        
+        auto maxes = std::shared_ptr<float[]>(new float[size]);
+        std::fill_n(maxes.get(), size, -INFINITY);
+        int axis_stride = t1->get_strides()[axis];
+
+        for (int i = 0; i < t1->get_shape()[axis]; i++) {
+            for (int j = 0; j < size; j++) {
+                int index = 0;
+                int remainder = j;
+                for (int k = t1->get_ndim() - 2; k >= 0; k--) {
+                    index += (remainder % result_shape[k]) * t1->get_strides()[k < axis ? k : k + 1];     
+                    remainder /= result_shape[k];
+                }
+                maxes[j] = fmax(maxes[j], t1->get_item(index + i * axis_stride));
+            }
+        }
+        
+        return maxes;
+    }
+}
+
+std::shared_ptr<float[]> min_tensor_cpu(std::shared_ptr<Tensor> t1, int size, std::vector<int>& result_shape, int axis) {
+    if (axis == -1) {
+        auto mins = std::shared_ptr<float[]>(new float[1]);
+        auto min = INFINITY;
+
+        for (int i = 0; i < t1->get_size(); i++)
+        {
+            min = fmin(min, t1->get_item(i));
+        }
+
+        mins[0] = min;
+
+        return mins;        
+    } else {
+        if (axis < 0 || axis >= t1->get_ndim()) {
+            throw new std::runtime_error("Invalid axis provided");
+        }
+
+        auto mins = std::shared_ptr<float[]>(new float[size]);
+        std::fill_n(mins.get(), size, INFINITY);
+        auto axis_stride = t1->get_strides()[axis];
+
+        for (int i = 0; i < t1->get_shape()[axis]; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                int index = 0;
+                int remainder = j;
+                for (int k = t1->get_ndim() - 2; k >= 0; k--) {
+                    index += (remainder % result_shape[k]) * t1->get_strides()[k < axis ? k : k + 1];     
+                    remainder /= result_shape[k];
+                }
+                mins[j] = fmin(mins[j], t1->get_item(index + i * axis_stride));
+            }
+        }
+
+        return mins;
+    }
+}
