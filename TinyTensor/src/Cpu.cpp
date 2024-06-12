@@ -254,3 +254,61 @@ std::shared_ptr<float[]> min_tensor_cpu(std::shared_ptr<Tensor> t1, int size, st
         return mins;
     }
 }
+
+std::shared_ptr<float[]> transpose_1d_vector_cpu(std::shared_ptr<Tensor> t1) {
+    if (t1->get_ndim() != 1)
+        throw new std::runtime_error("Tensor is not 1D");
+
+    auto result = std::shared_ptr<float[]>(new float[t1->get_size()]);
+
+    for (int i = 0; i < t1->get_size(); i++)
+    {
+        result[i] = t1->get_item(i);
+    }
+    
+    return result;
+}
+
+std::shared_ptr<float[]> transpose_2d_vector_cpu(std::shared_ptr<Tensor> t1) {
+    if (t1->get_ndim() != 2)
+        throw new std::runtime_error("Tensor is not 2D");
+
+    auto rows = t1->get_shape()[0];
+    auto cols = t1->get_shape()[1];
+
+    auto result_data = std::shared_ptr<float[]>(new float[t1->get_size()]);
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            result_data[j * cols + i] = t1->get_item(i * cols + j);
+        }
+    }
+    
+    return result_data;
+}
+
+std::shared_ptr<float[]> transpose_3d_vector_cpu(std::shared_ptr<Tensor> t1) {
+    if (t1->get_ndim() != 3)
+        throw new std::runtime_error("Tensor is not 3D");
+
+    auto batch = t1->get_shape()[0];
+    auto rows = t1->get_shape()[1];
+    auto cols = t1->get_shape()[2];
+
+    auto result_data = std::shared_ptr<float[]>(new float[t1->get_size()]);
+
+    for (int i = 0; i < batch; i++)
+    {
+        for (int j = 0; j < rows; j++)
+        {
+            for (int k = 0; k < cols; k++)
+            {
+                result_data[k * rows * batch + j * batch + i] = t1->get_item(i * rows * cols + j * cols + k);
+            }
+        }
+    }
+
+    return result_data;
+}

@@ -247,3 +247,47 @@ TEST(CPU, AssignTensorCPU) {
         EXPECT_EQ(tensor->get_item(i), values[i]);
     }
 }
+
+TEST(CPU, Transpose1DTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {4};
+    auto tensor = std::make_shared<Tensor>(data, shape, 1, device);
+    auto result = transpose_1d_vector_cpu(tensor);
+
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(tensor->get_item(i), result[i]);
+    }
+    
+}
+
+
+TEST(CPU, Transpose2DTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+    auto result = transpose_2d_vector_cpu(tensor);
+    std::vector<float> expected = {324, 54, 34, 12};
+
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(expected.at(i), result[i]);
+    }
+}
+
+TEST(CPU, Transpose3DTensorCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {1,2,3,4,5,6,7,8};
+    std::vector<int> shape = {2, 2, 2};
+    auto tensor = std::make_shared<Tensor>(data, shape, 3, device);
+    auto result = transpose_3d_vector_cpu(tensor);
+    std::vector<float> expected = {1, 5, 3, 7, 2, 6, 4, 8};
+
+    for (int i = 0; i < tensor->get_size(); i++)
+    {
+        EXPECT_EQ(expected.at(i), result[i]);
+    }
+}
+

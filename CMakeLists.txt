@@ -18,7 +18,7 @@ enable_testing()
 
 add_executable(
     TinyTensor
-    ./main.cpp
+    # ./main.cpp
     ./TinyTensor/src/Tensor.cpp
     ./TinyTensor/src/Cpu.cpp
     ./TinyTensor/tests/tensor_test.cpp
