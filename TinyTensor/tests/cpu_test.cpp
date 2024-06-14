@@ -3,6 +3,7 @@
 #include "Tensor.h"
 #include "Cpu.h"
 
+
 TEST(CPU, AddTensorsCPU) {
     std::string device = "cpu";
     std::vector<float> data = {324, 34, 54, 12};
@@ -17,6 +18,58 @@ TEST(CPU, AddTensorsCPU) {
         EXPECT_EQ(expected_outputs[i], out[i]);
     }
 }
+
+TEST(CPU, AddTensorsBroacastedCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor1 = std::make_shared<Tensor>(data, shape, 2, device);
+    data = {324, 34};
+    shape = {2};
+    auto tensor2 = std::make_shared<Tensor>(data, shape, 1, device);
+
+    float expected_outputs[] = {648, 68, 378, 46};
+    auto out = add_tensor_broadcasted_cpu(tensor1, tensor2, std::vector<int> {2, 2}, 4);
+    for (int i = 0; i < tensor1->get_size(); i++)
+    {
+        EXPECT_EQ(expected_outputs[i], out[i]);
+    }
+}
+
+TEST(CPU, SubTensorsBroacastedCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor1 = std::make_shared<Tensor>(data, shape, 2, device);
+    data = {324, 34};
+    shape = {2};
+    auto tensor2 = std::make_shared<Tensor>(data, shape, 1, device);
+
+    float expected_outputs[] = {0, 0, -270, -22};
+    auto out = sub_tensor_broadcasted_cpu(tensor1, tensor2, std::vector<int> {2, 2}, 4);
+    for (int i = 0; i < tensor1->get_size(); i++)
+    {
+        EXPECT_EQ(expected_outputs[i], out[i]);
+    }
+}
+
+TEST(CPU, EqTensorsBroacastedCPU) {
+    std::string device = "cpu";
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor1 = std::make_shared<Tensor>(data, shape, 2, device);
+    data = {324, 34};
+    shape = {2};
+    auto tensor2 = std::make_shared<Tensor>(data, shape, 1, device);
+
+    float expected_outputs[] = {1.0f, 1.0f, 0.0f, 0.0f};
+    auto out = eq_tensor_broadcasted_cpu(tensor1, tensor2, std::vector<int> {2, 2}, 4);
+    for (int i = 0; i < tensor1->get_size(); i++)
+    {
+        EXPECT_EQ(expected_outputs[i], out[i]);
+    }
+}
+
 
 TEST(CPU, SubTensorsCPU) {
     std::string device = "cpu";
@@ -291,3 +344,36 @@ TEST(CPU, Transpose3DTensorCPU) {
     }
 }
 
+TEST(CPU, CanBroadcastCPU) {
+    // Broadcastable Examples    
+    std::vector<int> shape1 = {3, 1, 2};
+    std::vector<int> shape2 = {1, 2};
+    auto ok = can_broadcast_cpu(shape1, shape2);
+    EXPECT_TRUE(ok);
+
+    shape1 = {4, 3, 1, 2};
+    shape2 = {1, 2};
+    ok = can_broadcast_cpu(shape1, shape2);
+    EXPECT_TRUE(ok);
+
+    shape1 = {1, 5, 6};
+    shape2 = {4, 1, 5, 6};
+    ok = can_broadcast_cpu(shape1, shape2);
+    EXPECT_TRUE(ok);
+
+    // Non-Broadcastable Examples
+    shape1 = {4, 3, 1, 2};
+    shape2 = {1, 3};
+    ok = can_broadcast_cpu(shape1, shape2);
+    EXPECT_FALSE(ok);
+
+    shape1 = {5, 3};
+    shape2 = {2, 3};
+    ok = can_broadcast_cpu(shape1, shape2);
+    EXPECT_FALSE(ok);
+
+    shape1 = {1, 8, 3};
+    shape2 = {1, 8, 5};
+    ok = can_broadcast_cpu(shape1, shape2);
+    EXPECT_FALSE(ok);
+}

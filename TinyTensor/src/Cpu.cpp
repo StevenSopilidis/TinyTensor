@@ -13,6 +13,71 @@ std::shared_ptr<float[]> add_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_
     return elements;
 }
 
+bool can_broadcast_cpu(const std::vector<int>& shape1, const std::vector<int>& shape2) {
+    int size1 = shape1.size();
+    int size2 = shape2.size();
+    int max_size = std::max(size1, size2);
+
+    for (int i = 0; i < max_size; i++)
+    {
+        int dim1 = (i < size1)? shape1[size1 - 1 - i]: 1;
+        int dim2 = (i < size2)? shape2[size2 - 1 - i]: 1;
+
+        if (dim1 != dim2 && dim1 != 1 && dim2 != 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::shared_ptr<float[]> add_tensor_broadcasted_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2,  std::vector<int> broadcasted_shape, int broadcasted_size) {
+    if(!can_broadcast_cpu(t1->get_shape(), t2->get_shape()))
+        throw std::invalid_argument("Shapes cannot be brodcasted");
+    
+    int max_ndim = std::max(t1->get_ndim(), t2->get_ndim());
+    std::vector<int> strides1(max_ndim, 0);
+    std::vector<int> strides2(max_ndim, 0);
+
+    int stride1 = 1, stride2 = 1;
+    for (int i = max_ndim - 1; i >= 0; --i) {
+        int dim1 = (i >= max_ndim - t1->get_ndim()) ? t1->get_shape()[i - (max_ndim - t1->get_ndim())] : 1;
+        int dim2 = (i >= max_ndim - t2->get_ndim()) ? t2->get_shape()[i - (max_ndim - t2->get_ndim())] : 1;
+
+        strides1[i] = dim1 == broadcasted_shape[i]? stride1 : 0;
+        strides2[i] = dim2 == broadcasted_shape[i]? stride2 : 0;
+
+        stride1 *= (dim1 == broadcasted_shape[i])? dim1 : 1;
+        stride2 *= (dim2 == broadcasted_shape[i])? dim2 : 1;
+
+    }
+
+    auto result = std::shared_ptr<float[]>(new float[broadcasted_size]);
+
+    // iterate through all items
+    for (int i = 0; i < broadcasted_size; i++) {
+        int idx1 = 0;
+        int idx2 = 0;
+        int temp = i;
+
+        // iterate through dimensions of broadcasted_shape
+        for (int j = max_ndim - 1; j >= 0; --j) {
+            // index that j-th dimension
+            int index = temp % broadcasted_shape[j];
+            // go up one dimension
+            temp /= broadcasted_shape[j];
+            
+            if (strides1[j] != 0) 
+                idx1 += index * strides1[j];
+            if (strides2[j] != 0) 
+                idx2 += index * strides2[j];
+        }
+
+        result[i] = t1->get_item(idx1) + t2->get_item(idx2);
+    }
+
+    return result;
+}   
+
 std::shared_ptr<float[]> sub_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2) {
     auto elements = std::shared_ptr<float[]>(new float[t1->get_size()]);
 
@@ -21,6 +86,54 @@ std::shared_ptr<float[]> sub_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_
     }
 
     return elements;
+}
+
+std::shared_ptr<float[]> sub_tensor_broadcasted_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2,  std::vector<int> broadcasted_shape, int broadcasted_size) {
+    if(!can_broadcast_cpu(t1->get_shape(), t2->get_shape()))
+        throw std::invalid_argument("Shapes cannot be brodcasted");
+    
+    int max_ndim = std::max(t1->get_ndim(), t2->get_ndim());
+    std::vector<int> strides1(max_ndim, 0);
+    std::vector<int> strides2(max_ndim, 0);
+
+    int stride1 = 1, stride2 = 1;
+    for (int i = max_ndim - 1; i >= 0; --i) {
+        int dim1 = (i >= max_ndim - t1->get_ndim()) ? t1->get_shape()[i - (max_ndim - t1->get_ndim())] : 1;
+        int dim2 = (i >= max_ndim - t2->get_ndim()) ? t2->get_shape()[i - (max_ndim - t2->get_ndim())] : 1;
+
+        strides1[i] = dim1 == broadcasted_shape[i]? stride1 : 0;
+        strides2[i] = dim2 == broadcasted_shape[i]? stride2 : 0;
+
+        stride1 *= (dim1 == broadcasted_shape[i])? dim1 : 1;
+        stride2 *= (dim2 == broadcasted_shape[i])? dim2 : 1;
+
+    }
+
+    auto result = std::shared_ptr<float[]>(new float[broadcasted_size]);
+
+    // iterate through all items
+    for (int i = 0; i < broadcasted_size; i++) {
+        int idx1 = 0;
+        int idx2 = 0;
+        int temp = i;
+
+        // iterate through dimensions of broadcasted_shape
+        for (int j = max_ndim - 1; j >= 0; --j) {
+            // index that j-th dimension
+            int index = temp % broadcasted_shape[j];
+            // go up one dimension
+            temp /= broadcasted_shape[j];
+            
+            if (strides1[j] != 0) 
+                idx1 += index * strides1[j];
+            if (strides2[j] != 0) 
+                idx2 += index * strides2[j];
+        }
+
+        result[i] = t1->get_item(idx1) - t2->get_item(idx2);
+    }
+
+    return result;
 }
 
 std::shared_ptr<float[]> elementwise_mul_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2) {
@@ -72,6 +185,54 @@ std::shared_ptr<float[]> eq_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_p
     }
 
     return elements;
+}
+
+std::shared_ptr<float[]> eq_tensor_broadcasted_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2, std::vector<int> broadcasted_shape, int broadcasted_size) {
+    if(!can_broadcast_cpu(t1->get_shape(), t2->get_shape()))
+        throw std::invalid_argument("Shapes cannot be brodcasted");
+    
+    int max_ndim = std::max(t1->get_ndim(), t2->get_ndim());
+    std::vector<int> strides1(max_ndim, 0);
+    std::vector<int> strides2(max_ndim, 0);
+
+    int stride1 = 1, stride2 = 1;
+    for (int i = max_ndim - 1; i >= 0; --i) {
+        int dim1 = (i >= max_ndim - t1->get_ndim()) ? t1->get_shape()[i - (max_ndim - t1->get_ndim())] : 1;
+        int dim2 = (i >= max_ndim - t2->get_ndim()) ? t2->get_shape()[i - (max_ndim - t2->get_ndim())] : 1;
+
+        strides1[i] = dim1 == broadcasted_shape[i]? stride1 : 0;
+        strides2[i] = dim2 == broadcasted_shape[i]? stride2 : 0;
+
+        stride1 *= (dim1 == broadcasted_shape[i])? dim1 : 1;
+        stride2 *= (dim2 == broadcasted_shape[i])? dim2 : 1;
+
+    }
+
+    auto result = std::shared_ptr<float[]>(new float[broadcasted_size]);
+
+    // iterate through all items
+    for (int i = 0; i < broadcasted_size; i++) {
+        int idx1 = 0;
+        int idx2 = 0;
+        int temp = i;
+
+        // iterate through dimensions of broadcasted_shape
+        for (int j = max_ndim - 1; j >= 0; --j) {
+            // index that j-th dimension
+            int index = temp % broadcasted_shape[j];
+            // go up one dimension
+            temp /= broadcasted_shape[j];
+            
+            if (strides1[j] != 0) 
+                idx1 += index * strides1[j];
+            if (strides2[j] != 0) 
+                idx2 += index * strides2[j];
+        }
+
+        result[i] = t1->get_item(idx1) == t2->get_item(idx2)? 1.0f : 0.0f;
+    }
+
+    return result;
 }
 
 std::shared_ptr<float[]> zero_tensor_cpu(std::shared_ptr<Tensor> t1) {
@@ -192,7 +353,7 @@ std::shared_ptr<float[]> max_tensor_cpu(std::shared_ptr<Tensor> t1, int size, st
         return maxes;
     } else {
         if (axis < 0 || axis >= t1->get_ndim()) {
-            throw new std::runtime_error("Invalid axis provided");
+            throw new std::invalid_argument("Invalid axis provided");
         }
         
         auto maxes = std::shared_ptr<float[]>(new float[size]);
@@ -230,7 +391,7 @@ std::shared_ptr<float[]> min_tensor_cpu(std::shared_ptr<Tensor> t1, int size, st
         return mins;        
     } else {
         if (axis < 0 || axis >= t1->get_ndim()) {
-            throw new std::runtime_error("Invalid axis provided");
+            throw new std::invalid_argument("Invalid axis provided");
         }
 
         auto mins = std::shared_ptr<float[]>(new float[size]);
@@ -257,7 +418,7 @@ std::shared_ptr<float[]> min_tensor_cpu(std::shared_ptr<Tensor> t1, int size, st
 
 std::shared_ptr<float[]> transpose_1d_vector_cpu(std::shared_ptr<Tensor> t1) {
     if (t1->get_ndim() != 1)
-        throw new std::runtime_error("Tensor is not 1D");
+        throw new std::invalid_argument("Tensor is not 1D");
 
     auto result = std::shared_ptr<float[]>(new float[t1->get_size()]);
 
@@ -271,7 +432,7 @@ std::shared_ptr<float[]> transpose_1d_vector_cpu(std::shared_ptr<Tensor> t1) {
 
 std::shared_ptr<float[]> transpose_2d_vector_cpu(std::shared_ptr<Tensor> t1) {
     if (t1->get_ndim() != 2)
-        throw new std::runtime_error("Tensor is not 2D");
+        throw new std::invalid_argument("Tensor is not 2D");
 
     auto rows = t1->get_shape()[0];
     auto cols = t1->get_shape()[1];
@@ -291,7 +452,7 @@ std::shared_ptr<float[]> transpose_2d_vector_cpu(std::shared_ptr<Tensor> t1) {
 
 std::shared_ptr<float[]> transpose_3d_vector_cpu(std::shared_ptr<Tensor> t1) {
     if (t1->get_ndim() != 3)
-        throw new std::runtime_error("Tensor is not 3D");
+        throw new std::invalid_argument("Tensor is not 3D");
 
     auto batch = t1->get_shape()[0];
     auto rows = t1->get_shape()[1];

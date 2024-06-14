@@ -3,13 +3,17 @@
 #include <memory>
 #include "Tensor.h"
 
+bool can_broadcast_cpu(const std::vector<int>& shape1, const std::vector<int>& shape2);
 std::shared_ptr<float[]> add_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2);
+std::shared_ptr<float[]> add_tensor_broadcasted_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2,  std::vector<int> broadcasted_shape, int broadcasted_size);
 std::shared_ptr<float[]> sub_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2);
+std::shared_ptr<float[]> sub_tensor_broadcasted_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2,  std::vector<int> broadcasted_shape, int broadcasted_size);
 std::shared_ptr<float[]> elementwise_div_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2);
 std::shared_ptr<float[]> scalar_div_tensor_cpu(float scalar, std::shared_ptr<Tensor> t1);
 std::shared_ptr<float[]> tensor_div_scalar_cpu(std::shared_ptr<Tensor> t1, float scalar);
 std::shared_ptr<float[]> elementwise_mul_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2);
 std::shared_ptr<float[]> eq_tensor_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2);
+std::shared_ptr<float[]> eq_tensor_broadcasted_cpu(std::shared_ptr<Tensor> t1, std::shared_ptr<Tensor> t2,  std::vector<int> broadcasted_shape, int broadcasted_size);
 std::shared_ptr<float[]> zero_tensor_cpu(std::shared_ptr<Tensor> t1); 
 std::shared_ptr<float[]> one_tensor_cpu(std::shared_ptr<Tensor> t1); 
 std::shared_ptr<float[]> sin_tensor_cpu(std::shared_ptr<Tensor> t1);

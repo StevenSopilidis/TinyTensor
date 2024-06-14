@@ -5,18 +5,17 @@
 
 int main() {
     std::string device = "cpu";
-    std::vector<float> data = {324, 34, 54, 12, 
-                                234, 234, 5, 1};
-    std::vector<int> shape = {2, 4};
-    auto tensor = std::make_shared<Tensor>(data, shape, 2, device);
+    std::vector<float> data = {324, 34, 54, 12};
+    std::vector<int> shape = {2, 2};
+    auto tensor1 = std::make_shared<Tensor>(data, shape, 2, device);
+    data = {324, 34};
+    shape = {2};
+    auto tensor2 = std::make_shared<Tensor>(data, shape, 1, device);
 
-    std::vector<int> result_shape = {4};
-
-    auto maxes = max_tensor_cpu(tensor, 4, result_shape, 0);
-
-    std::cout << "Max values along axis 0: ";
-    for (int i = 0; i < 4; i++) {
-        std::cout << maxes[i] << " ";
+    auto out = add_tensor_broadcasted_cpu(tensor1, tensor2, std::vector<int> {2, 2}, 4);
+    for (int i = 0; i < 4; i++)
+    {   
+        std::cout << out[i] << std::endl;
     }
-    std::cout << std::endl;
-}
+    
+}   
